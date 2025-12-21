@@ -1,0 +1,21 @@
+# Giao diện và ứng dụng
+streamlit
+
+# Xử lý PDF
+PyPDF2
+
+# Machine Learning & Embeddings
+sentence-transformers
+torch
+
+# API & AI Models
+google-generativeai
+openai
+
+# Cơ sở dữ liệu & Backend
+supabase
+postgrest
+httpx
+
+# Tiện ích hệ thống
+python-dotenv

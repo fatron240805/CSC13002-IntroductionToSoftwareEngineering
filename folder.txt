@@ -1,0 +1,70 @@
+Intelligent-RAG-Assistant/
+├── frontend/                 # Next.js 14+ Client Layer [cite: 572]
+│   ├── components/           # UI Modules (Chat, Admin, Auth) [cite: 573, 574]
+│   └── app/                  # App Router (Login, Dashboard, Settings) [cite: 780]
+├── backend/                  # Backend Services Layer [cite: 576]
+│   ├── services/
+│   │   ├── rag_core.py       # Class C1: Orchestration [cite: 652]
+│   │   ├── doc_manager.py    # Class C2: PDF Ingestion & Categorization [cite: 662]
+│   │   ├── feedback.py       # Class C3: User Rating Management [cite: 672]
+│   │   └── auth_service.py   # Class C5: Session & Identity [cite: 688]
+│   └── utils/
+│       ├── vector_store.py   # Class C4: pgvector Wrapper [cite: 680]
+│       ├── embeddings.py     # Class C6: OpenAI Embedding Service [cite: 696]
+│       └── pdf_loader.py     # Class C9: PDF Parsing utility [cite: 715]
+├── supabase/                 # Data Layer Configuration [cite: 581]
+│   └── migrations/           # SQL for tables (users, documents, embeddings) [cite: 727]
+└── pyproject.toml            # Project dependencies
+
+
+
+============================================
+
+-- Kích hoạt công cụ tìm kiếm vector
+CREATE EXTENSION IF NOT EXISTS vector;
+
+-- 1. Bảng Documents (Lưu thông tin file và Category)
+CREATE TABLE documents (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    file_name TEXT NOT NULL,
+    category TEXT, -- 'HR', 'IT', 'Sales' (FR2.6)
+    status TEXT DEFAULT 'Processing',
+    upload_date TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- 2. Bảng Knowledge Embeddings (Lưu vector và nội dung)
+CREATE TABLE knowledge_embeddings (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    document_id UUID REFERENCES documents(id) ON DELETE CASCADE,
+    content TEXT NOT NULL,
+    metadata JSONB NOT NULL, -- Chứa { "page": 1, "category": "HR" }
+    embedding VECTOR(1536) -- Dùng cho OpenAI ada-002
+);
+
+-- 3. Hàm tìm kiếm vector kèm bộ lọc Metadata (FR3.6)
+CREATE OR REPLACE FUNCTION match_embeddings (
+  query_embedding VECTOR(1536),
+  match_threshold FLOAT,
+  match_count INT,
+  filter_category TEXT DEFAULT 'All'
+) RETURNS TABLE (
+  id UUID, content TEXT, metadata JSONB, similarity FLOAT
+) LANGUAGE plpgsql AS $$
+BEGIN
+  RETURN QUERY
+  SELECT ke.id, ke.content, ke.metadata, 1 - (ke.embedding <=> query_embedding) AS similarity
+  FROM knowledge_embeddings ke
+  WHERE (filter_category = 'All' OR ke.metadata->>'category' = filter_category)
+    AND 1 - (ke.embedding <=> query_embedding) > match_threshold
+  ORDER BY similarity DESC
+  LIMIT match_count;
+END;
+$$;
+
+============
+key = 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
+==========
+supabase
+
+https://upxxyfktcznvyxrdtfuy.supabase.co
+sb_publishable_CCH41Wtk6I7xnCB4dBPZMg_zu9fD5br
