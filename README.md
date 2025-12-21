@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # intelligentRAG
 Need not to know.
 =======
@@ -73,4 +72,3 @@ Storage: Lưu trữ vector vào Supabase.
 Retrieval: Khi người dùng đặt câu hỏi, hệ thống tìm kiếm các đoạn văn bản có nội dung liên quan nhất.
 
 Generation: Gửi ngữ cảnh (context) tìm được vào Gemini/OpenAI để tạo câu trả lời cuối cùng.
->>>>>>> fff2b31 (Initial commit: Intelligent RAG assistant)
